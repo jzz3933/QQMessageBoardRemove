@@ -9,7 +9,7 @@ class Delete:
 
 	def __init__(self):
 		self.__u = ''
-		self.__p = ''
+		self.__p = ''#注意个人信息
 		self.__driver = webdriver.Chrome('C:\Program Files (x86)\Google\Chrome\Application\chromedriver')
 
 	# 登录qq空间
@@ -62,8 +62,8 @@ class Delete:
 			WebDriverWait(self.__driver, 3).until(
         			EC.presence_of_element_located((By.XPATH, '//a[@class="qz_dialog_layer_btn qz_dialog_layer_sub"]'))
         		).click()
-		except TimeoutException as e:
-			self.__driver.refresh()
+		except TimeoutException as e: #由于QQ空间bug，多选删除完多个留言后，无法再继续勾选删除，上面语句会出现超时错误
+			self.__driver.refresh()   #刷新页面，重新执行操作
 			self.switch2board()
 			self.deleteByNum(num)
             
@@ -148,6 +148,6 @@ class Delete:
 if __name__ == '__main__':
 		# delete = Delete()
 		# delete.start()
-	num = ''
+	num = '670872031'
 	delete = Delete()
 	delete.start(num = num)
