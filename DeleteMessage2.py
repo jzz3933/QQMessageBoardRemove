@@ -3,13 +3,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-
+from selenium.common.exceptions import TimeoutException
 
 class Delete:
 
 	def __init__(self):
-		self.__u = '997843911'
-		self.__p = '#LiRan3911'
+		self.__u = ''
+		self.__p = ''
 		self.__driver = webdriver.Chrome('C:\Program Files (x86)\Google\Chrome\Application\chromedriver')
 
 	# 登录qq空间
@@ -57,16 +57,23 @@ class Delete:
 	def handlePopWin(self, selectedItem=None):
 		# 弹窗不在frame中
 		self.__driver.switch_to.default_content()
-		WebDriverWait(self.__driver, 10).until(
-			EC.presence_of_element_located((By.XPATH, '//a[@class="qz_dialog_layer_btn qz_dialog_layer_sub"]'))
-		).click()
+		try:
+            
+			WebDriverWait(self.__driver, 3).until(
+        			EC.presence_of_element_located((By.XPATH, '//a[@class="qz_dialog_layer_btn qz_dialog_layer_sub"]'))
+        		).click()
+		except TimeoutException as e:
+			self.__driver.refresh()
+			self.switch2board()
+			self.deleteByNum(num)
+            
 		if selectedItem:
 			print('删除 %d 条记录' % selectedItem)
 		else:
 			print('删除一页记录')
 
 		# 确保留言板所在的frame已经加载完并切换
-		WebDriverWait(self.__driver, 10).until(
+		WebDriverWait(self.__driver, 3).until(
 			EC.frame_to_be_available_and_switch_to_it((By.XPATH, '//iframe[@id="tgb"]'))
 		)
 
@@ -95,6 +102,7 @@ class Delete:
 	def deleteByNum(self, num):
 		# 显示批量管理
 		self.__driver.execute_script('document.getElementsByClassName("sub_list bg bor")[0].style.display="block"')
+		time.sleep(3)
 		self.__driver.find_element_by_id('btnBatch').click()
 		while True:
 			time.sleep(3)
@@ -115,7 +123,7 @@ class Delete:
 				self.handlePopWin(selectedItem)
 			# 该页中没有目标qq的留言处理下一页
 			else:
-				nextBtn = WebDriverWait(self.__driver, 10).until(
+				nextBtn = WebDriverWait(self.__driver, 3).until(
 					EC.presence_of_element_located((By.XPATH, '//div[@id="pager_top"]//p[@class="mod_pagenav_main"]/a[last()]'))
 				)
 				# print(nextBtn.get_attribute('class'))
@@ -140,5 +148,6 @@ class Delete:
 if __name__ == '__main__':
 		# delete = Delete()
 		# delete.start()
+	num = ''
 	delete = Delete()
-	delete.start()
+	delete.start(num = num)
